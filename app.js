@@ -137,3 +137,35 @@ Events.on(engine, 'beforeUpdate', function() {
         }
     }
 });
+
+// --- 6. VISUAL AIMING (The Power Line) ---
+let currentMousePos = null;
+
+// Track the mouse while dragging
+document.addEventListener('mousemove', (event) => {
+    if (isAiming) {
+        currentMousePos = { x: event.clientX, y: event.clientY };
+    }
+});
+
+// Draw the line on the screen every frame
+Events.on(render, 'afterRender', function() {
+    if (isAiming && startPoint && currentMousePos) {
+        const context = render.context;
+        
+        // Calculate how far the mouse has been dragged
+        let dragX = currentMousePos.x - startPoint.x;
+        let dragY = currentMousePos.y - startPoint.y;
+        
+        // Draw the aim line coming OUT of the ball in the opposite direction (slingshot)
+        context.beginPath();
+        context.moveTo(ball.position.x, ball.position.y);
+        context.lineTo(ball.position.x - dragX, ball.position.y - dragY);
+        
+        context.strokeStyle = '#FED101'; // Your brand's sharp yellow
+        context.lineWidth = 4;
+        context.setLineDash([5, 5]); // Makes it a dashed line for a clean UI look
+        context.stroke();
+        context.setLineDash([]); // Reset dash for other drawing
+    }
+});
