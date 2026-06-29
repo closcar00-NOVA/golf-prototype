@@ -1,0 +1,16 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #000000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+canvas {
+    /* Subtle border to define the playable area against the black background */
+    border: 1px solid #333333; 
+    box-shadow: 0 0 20px rgba(0, 152, 90, 0.1);
+}
