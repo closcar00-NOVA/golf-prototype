@@ -7,10 +7,46 @@ body {
     align-items: center;
     height: 100vh;
     overflow: hidden;
+    font-family: 'Helvetica Neue', Arial, sans-serif; /* Clean, modern typeface */
 }
 
 canvas {
-    /* Subtle border to define the playable area against the black background */
     border: 1px solid #333333; 
     box-shadow: 0 0 20px rgba(0, 152, 90, 0.1);
+    z-index: 1;
+}
+
+/* --- UI OVERLAY STYLES --- */
+#ui-container {
+    position: absolute;
+    top: 30px; /* Floats near the top of the screen */
+    display: flex;
+    gap: 15px;
+    z-index: 10;
+    pointer-events: none; /* Allows mouse clicks to pass directly through to the canvas */
+}
+
+.ui-box {
+    background: rgba(15, 15, 15, 0.85); /* Semi-transparent dark background */
+    border: 1px solid #222;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-align: center;
+    min-width: 60px;
+}
+
+.label {
+    display: block;
+    color: #666;
+    font-size: 11px;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+    font-weight: bold;
+}
+
+.value {
+    display: block;
+    color: #FED101; /* The sharp brand yellow */
+    font-size: 24px;
+    font-weight: 800;
 }
