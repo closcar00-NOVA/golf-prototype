@@ -26,7 +26,12 @@ document.addEventListener('mouseup', (event) => {
         Matter.Body.applyForce(ball, ball.position, { x: forceX, y: forceY });
         console.log(`Stroke count: ${strokeCount}`);
     }
-    // Global variables so we can access them anywhere
+}); // <--- THIS CLOSES THE SWING EVENT HERE
+
+
+// --- LEVEL BUILDING LOGIC ---
+
+// Global variables so we can access them anywhere
 let ball;
 let green;
 let cup;
@@ -79,4 +84,3 @@ function loadLevel(levelIndex) {
 
 // Call the function to build Hole 1 immediately when the game loads!
 loadLevel(0);
-});
