@@ -169,3 +169,68 @@ Events.on(render, 'afterRender', function() {
         context.setLineDash([]); // Reset dash for other drawing
     }
 });
+
+// --- 7. COLLISION LOGIC (Sinking the Putt) ---
+Events.on(engine, 'collisionStart', function(event) {
+    const pairs = event.pairs;
+
+    for (let i = 0; i < pairs.length; i++) {
+        const bodyA = pairs[i].bodyA;
+        const bodyB = pairs[i].bodyB;
+
+        // Check if the collision involves the ball and the cup
+        if ((bodyA === ball && bodyB === cup) || (bodyB === ball && bodyA === cup)) {
+            
+            // Calculate how fast the ball is moving
+            let speed = Math.sqrt(ball.velocity.x * ball.velocity.x + ball.velocity.y * ball.velocity.y);
+
+            // If the ball is moving too fast, it skips over the hole!
+            if (speed > 6) {
+                console.log("Too fast! The ball skipped over the hole.");
+                return; 
+            }
+
+            // --- THE BALL DROPS IN ---
+            console.log(`Hole complete! Strokes: ${strokeCount}`);
+            
+            // 1. Lock the game state
+            gameState = 'HOLED';
+            
+            // 2. Stop the ball dead in its tracks and snap it to the center of the cup
+            Matter.Body.setVelocity(ball, { x: 0, y: 0 });
+            Matter.Body.setPosition(ball, { x: cup.position.x, y: cup.position.y }); 
+            
+            // 3. Short delay so the player sees the ball drop, then show the scorecard
+            setTimeout(() => {
+                alert(`Nice putt! You finished the hole in ${strokeCount} strokes.`);
+                
+                // Reset to Hole 1 for now. (We will build Hole 2 in levels.js later).
+                loadLevel(0); 
+            }, 500);
+        }
+    }
+});
+    }
+});
+
+// Draw the line on the screen every frame
+Events.on(render, 'afterRender', function() {
+    if (isAiming && startPoint && currentMousePos) {
+        const context = render.context;
+        
+        // Calculate how far the mouse has been dragged
+        let dragX = currentMousePos.x - startPoint.x;
+        let dragY = currentMousePos.y - startPoint.y;
+        
+        // Draw the aim line coming OUT of the ball in the opposite direction (slingshot)
+        context.beginPath();
+        context.moveTo(ball.position.x, ball.position.y);
+        context.lineTo(ball.position.x - dragX, ball.position.y - dragY);
+        
+        context.strokeStyle = '#FED101'; // Your brand's sharp yellow
+        context.lineWidth = 4;
+        context.setLineDash([5, 5]); // Makes it a dashed line for a clean UI look
+        context.stroke();
+        context.setLineDash([]); // Reset dash for other drawing
+    }
+});
