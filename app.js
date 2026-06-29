@@ -79,6 +79,12 @@ function loadLevel(levelIndex) {
 
     Composite.add(engine.world, [green, cup, ball, topWall, bottomWall, leftWall, rightWall]);
 
+      // --- Add these lines to update the UI on level load ---
+    document.getElementById('ui-hole').innerText = levelData.hole;
+    document.getElementById('ui-par').innerText = levelData.par;
+    document.getElementById('ui-strokes').innerText = '0';
+    // ------------------------------------------------------
+
     gameState = 'IDLE';
     strokeCount = 0;
 }
@@ -101,7 +107,10 @@ document.addEventListener('mouseup', (event) => {
         isAiming = false;
         gameState = 'MOVING'; 
         strokeCount++; 
-        
+
+          // --- Add this line right here ---
+        document.getElementById('ui-strokes').innerText = strokeCount;
+      
         let endPoint = { x: event.clientX, y: event.clientY };
         
         let powerMultiplier = -0.002;
