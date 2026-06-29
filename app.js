@@ -65,7 +65,7 @@ function loadLevel(levelIndex) {
     ball = Bodies.circle(levelData.start_pos.x, levelData.start_pos.y, 10, {
         restitution: 0.8,
         friction: 0.005,
-        frictionAir: 0.03,
+        frictionAir: 0.015,
         density: 0.04,
         render: { fillStyle: '#FED101' }
     });
@@ -104,11 +104,11 @@ document.addEventListener('mouseup', (event) => {
         
         let endPoint = { x: event.clientX, y: event.clientY };
         
-        let powerMultiplier = -0.0005;
+        let powerMultiplier = -0.002;
         let forceX = (endPoint.x - startPoint.x) * powerMultiplier;
         let forceY = (endPoint.y - startPoint.y) * powerMultiplier;
 
-        const maxForce = 0.15;
+        const maxForce = 0.5;
         let forceMagnitude = Math.sqrt(forceX * forceX + forceY * forceY);
         if (forceMagnitude > maxForce) {
             let scale = maxForce / forceMagnitude;
