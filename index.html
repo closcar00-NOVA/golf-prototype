@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Golf Physics Prototype</title>
+    <title>Retro Golf</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="ui-container">
+        <div class="ui-box">
+            <span class="label">PLAYER</span>
+            <span id="ui-player" class="value">P1</span>
+        </div>
         <div class="ui-box">
             <span class="label">HOLE</span>
             <span id="ui-hole" class="value">1</span>
@@ -20,6 +24,14 @@
             <span class="label">STROKES</span>
             <span id="ui-strokes" class="value">0</span>
         </div>
+        <div class="ui-box">
+            <span class="label">CLUB</span>
+            <span id="ui-club" class="value">IRON</span>
+        </div>
+    </div>
+
+    <div id="controls-hint" style="position: absolute; bottom: 20px; color: rgba(255,255,255,0.5); font-family: 'Press Start 2P', monospace; font-size: 10px; z-index: 10; pointer-events: none;">
+        [SPACE] Change Club | [P] Change Player
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
