@@ -17,7 +17,7 @@ const render = Render.create({
         width: 600,
         height: 800,
         wireframes: false,
-        background: '#1E5945' // The entire playing field is now rich Fairway Green
+        background: '#1E5945' 
     }
 });
 
@@ -34,26 +34,24 @@ let isAiming = false;
 let startPoint = null;
 let currentLevel = 0;
 
-// Club Mechanics Database
+// High-Sensitivity Clubs
 const CLUBS = {
-    'DRIVER': { maxForce: 0.6, multiplier: -0.003, color: '#FF4136' }, // Huge power, red line
-    'IRON':   { maxForce: 0.3, multiplier: -0.0015, color: '#0074D9' }, // Medium power, blue line
-    'PUTTER': { maxForce: 0.1, multiplier: -0.0005, color: '#FED101' }  // Low power precision, yellow line
+    'DRIVER': { maxForce: 0.6, multiplier: -0.006, color: '#FF4136' }, 
+    'IRON':   { maxForce: 0.3, multiplier: -0.003, color: '#0074D9' }, 
+    'PUTTER': { maxForce: 0.1, multiplier: -0.001, color: '#FED101' }  
 };
 let activeClubKeys = ['DRIVER', 'IRON', 'PUTTER'];
-let activeClubIndex = 1; // Start with Iron
+let activeClubIndex = 1; 
 
-// Player/Avatar Database
 const PLAYERS = [
-    { id: 'P1', color: '#FED101', density: 0.04 }, // Standard Yellow
-    { id: 'P2', color: '#F012BE', density: 0.06 }, // Heavy Pink (stops faster)
-    { id: 'P3', color: '#FFFFFF', density: 0.03 }  // Light White (rolls further)
+    { id: 'P1', color: '#FED101', density: 0.04 }, 
+    { id: 'P2', color: '#F012BE', density: 0.06 }, 
+    { id: 'P3', color: '#FFFFFF', density: 0.03 }  
 ];
 let activePlayerIndex = 0;
 
-// Handle Keyboard Inputs for switching
 document.addEventListener('keydown', (e) => {
-    if (gameState !== 'IDLE') return; // Only switch while stopped
+    if (gameState !== 'IDLE') return; 
 
     if (e.code === 'Space') {
         activeClubIndex = (activeClubIndex + 1) % activeClubKeys.length;
@@ -66,7 +64,6 @@ document.addEventListener('keydown', (e) => {
         document.getElementById('ui-player').innerText = PLAYERS[activePlayerIndex].id;
         document.getElementById('ui-player').style.color = PLAYERS[activePlayerIndex].color;
         
-        // Update the physical ball immediately
         if (ball) {
             ball.render.fillStyle = PLAYERS[activePlayerIndex].color;
             Matter.Body.setDensity(ball, PLAYERS[activePlayerIndex].density);
@@ -81,22 +78,18 @@ function loadLevel(levelIndex) {
     Matter.Composite.clear(engine.world);
     Matter.Engine.clear(engine);
 
-    // Update UI
     document.getElementById('ui-hole').innerText = levelData.hole;
     document.getElementById('ui-par').innerText = levelData.par;
     document.getElementById('ui-strokes').innerText = '0';
 
-    // 1. Build Green (The lighter putting surface)
     green = Bodies.rectangle(levelData.green.x, levelData.green.y, levelData.green.width, levelData.green.height, { 
         isStatic: true, isSensor: true, render: { fillStyle: '#2E8B57' }, label: 'green'
     });
 
-    // 2. Build Cup
     cup = Bodies.circle(levelData.hole_pos.x, levelData.hole_pos.y, levelData.hole_pos.radius, {
         isStatic: true, isSensor: true, render: { fillStyle: '#000000' }, label: 'cup'
     });
 
-    // 3. Build Hazards
     let hazardBodies = [];
     if(levelData.water) {
         levelData.water.forEach(w => {
@@ -112,15 +105,24 @@ function loadLevel(levelIndex) {
             }));
         });
     }
+    if(levelData.bumpers) {
+        levelData.bumpers.forEach(b => {
+            hazardBodies.push(Bodies.rectangle(b.x, b.y, b.width, b.height, { 
+                isStatic: true, 
+                restitution: 0.6, 
+                // Wood styling with outline
+                render: { fillStyle: '#8B4513', strokeStyle: '#5C3317', lineWidth: 4 }, 
+                label: 'bumper' 
+            }));
+        });
+    }
 
-    // 4. Build Ball (Using active player stats)
     let currentPlayer = PLAYERS[activePlayerIndex];
     ball = Bodies.circle(levelData.start_pos.x, levelData.start_pos.y, 10, {
         restitution: 0.8, friction: 0.005, frictionAir: 0.015, density: currentPlayer.density, 
         render: { fillStyle: currentPlayer.color }, label: 'ball'
     });
 
-    // 5. Build Walls (Now acting as thick "Deep Rough / Tree Line" borders)
     const wallOpts = { isStatic: true, restitution: 0.5, render: { fillStyle: '#0A2E1C' } }; 
     const topW = Bodies.rectangle(300, -25, 650, 50, wallOpts);
     const botW = Bodies.rectangle(300, 825, 650, 50, wallOpts);
@@ -135,7 +137,7 @@ function loadLevel(levelIndex) {
 loadLevel(currentLevel);
 
 
-// --- 4. CONTROLS & AIMING (Powered by Clubs) ---
+// --- 4. CONTROLS & AIMING ---
 document.addEventListener('mousedown', (event) => {
     if (gameState === 'IDLE' && ball && ball.speed < 0.1) {
         isAiming = true;
@@ -151,9 +153,8 @@ document.addEventListener('mouseup', (event) => {
         document.getElementById('ui-strokes').innerText = strokeCount;
         
         let endPoint = { x: event.clientX, y: event.clientY };
-        
-        // Use the active club's stats for power
         let activeClub = CLUBS[activeClubKeys[activeClubIndex]];
+        
         let forceX = (endPoint.x - startPoint.x) * activeClub.multiplier;
         let forceY = (endPoint.y - startPoint.y) * activeClub.multiplier;
 
@@ -187,7 +188,6 @@ Events.on(render, 'afterRender', function() {
         context.moveTo(ball.position.x, ball.position.y);
         context.lineTo(ball.position.x - dragX, ball.position.y - dragY);
         
-        // Line color matches the equipped club
         context.strokeStyle = activeClub.color; 
         context.lineWidth = 4;
         context.setLineDash([5, 5]); 
@@ -200,7 +200,6 @@ Events.on(engine, 'beforeUpdate', function() {
     if (gameState === 'MOVING') {
         let speed = Math.sqrt(ball.velocity.x * ball.velocity.x + ball.velocity.y * ball.velocity.y);
         
-        // Sand trap logic
         let inSand = false;
         const collisions = Matter.Detector.collisions(engine.detector);
         collisions.forEach(collision => {
@@ -226,7 +225,6 @@ Events.on(engine, 'collisionStart', function(event) {
         const bodyA = pairs[i].bodyA;
         const bodyB = pairs[i].bodyB;
 
-        // Water Hazard
         if ((bodyA.label === 'water' && bodyB.label === 'ball') || (bodyB.label === 'water' && bodyA.label === 'ball')) {
             gameState = 'IDLE';
             strokeCount++; 
@@ -236,7 +234,6 @@ Events.on(engine, 'collisionStart', function(event) {
             return;
         }
 
-        // Cup (Hole in)
         if ((bodyA.label === 'cup' && bodyB.label === 'ball') || (bodyB.label === 'cup' && bodyA.label === 'ball')) {
             let speed = Math.sqrt(ball.velocity.x * ball.velocity.x + ball.velocity.y * ball.velocity.y);
             if (speed > 6) return; 
@@ -248,7 +245,10 @@ Events.on(engine, 'collisionStart', function(event) {
             setTimeout(() => {
                 alert(`Hole ${courseData[currentLevel].hole} complete in ${strokeCount} strokes!`);
                 currentLevel++;
-                if (currentLevel >= courseData.length) currentLevel = 0; 
+                if (currentLevel >= courseData.length) {
+                    alert("Congratulations! You completed the 9-Hole Course!");
+                    currentLevel = 0; 
+                }
                 loadLevel(currentLevel); 
             }, 500);
         }
